@@ -1,19 +1,22 @@
 from aiogram import Router, types
-from keyboards.reply import get_main_keyboard, get_settings_keyboard
+from aiogram.fsm.context import FSMContext
+from keyboards.reply import get_main_keyboard, get_settings_keyboard, get_admin_keyboard
 from utils.users import is_admin
 
 router = Router()
 
 
 @router.message()
-async def handle_any_message(message: types.Message):
-    print(f"🔍 Получено сообщение: '{message.text}' от пользователя {message.from_user.id}")
+async def handle_any_message(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
 
-    # Проверяем админские права
+    # Если есть активное состояние, не обрабатываем обычные сообщения
+    if current_state:
+        return
+
     admin_status = await is_admin(message.from_user.id)
-    print(f"👤 Пользователь {message.from_user.id} админ: {admin_status}")
 
-    # Если пользователь админ и использует админские кнопки
+    # Обработка кнопок для админов
     if admin_status:
         if message.text == "📊 Статистика":
             from handlers.admin import cmd_stats
@@ -25,9 +28,7 @@ async def handle_any_message(message: types.Message):
             return
         elif message.text == "📢 Рассылка":
             from handlers.admin import cmd_broadcast
-            from aiogram.fsm.context import FSMContext
-            # Нужно передать state, но пока просто отправляем сообщение
-            await message.answer("📢 <b>Рассылка сообщений</b>\n\nОтправьте сообщение для рассылки.", parse_mode="HTML")
+            await cmd_broadcast(message, state)
             return
         elif message.text == "👑 Админы":
             from handlers.admin import cmd_admins
@@ -58,14 +59,16 @@ async def handle_any_message(message: types.Message):
         from handlers.commands import cmd_inline
         await cmd_inline(message)
     elif message.text == "🔙 Назад":
-        await message.answer("↩️ Возврат в главное меню:", reply_markup=get_main_keyboard())
+        keyboard = get_admin_keyboard() if admin_status else get_main_keyboard()
+        await message.answer("↩️ Возврат в главное меню:", reply_markup=keyboard)
     elif message.text == "🔔 Уведомления":
         await message.answer("🔔 <b>Настройки уведомлений:</b>\n\nВсе уведомления включены ✅", parse_mode="HTML")
     elif message.text == "🌐 Язык":
         await message.answer("🌐 <b>Выбор языка:</b>\n\nТекущий язык: Русский 🇷🇺", parse_mode="HTML")
     else:
+        keyboard = get_admin_keyboard() if admin_status else get_main_keyboard()
         await message.answer(
             "🤖 Используйте кнопки или команды для взаимодействия с ботом!\n\n"
             "Команда /help - список всех возможностей",
-            reply_markup=get_main_keyboard() if not admin_status else get_main_keyboard()
+            reply_markup=keyboard
         )

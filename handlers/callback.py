@@ -14,7 +14,7 @@ async def handle_subscribe_callback(callback: types.CallbackQuery):
 
 @router.callback_query(lambda callback: callback.data == "contact")
 async def handle_contact_callback(callback: types.CallbackQuery):
-    await callback.message.answer("📞 Для связи: @foryanf")
+    await callback.message.answer("📞 Для связи: @username")
 
 @router.callback_query(lambda callback: callback.data == "confirm")
 async def handle_confirm_callback(callback: types.CallbackQuery):
