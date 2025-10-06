@@ -188,7 +188,7 @@ async def main():
     try:
         await dp.start_polling(bot)
     except Exception as e:
-        print(f"❌ Ошибка: {e}"
+        print(f"❌ Ошибка: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
