@@ -2,9 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-
-# ⚠️ ЗАМЕНИТЕ ЭТОТ ТОКЕН НА ВАШ РЕАЛЬНЫЙ ТОКЕН!
-BOT_TOKEN = "8285963956:AAECt8ixerW0PqRwDLyilxc0EQsvyzBszZQ"
+from config import BOT_TOKEN
 
 # Проверка токена перед запуском
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
